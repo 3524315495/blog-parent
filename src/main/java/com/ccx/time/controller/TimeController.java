@@ -21,7 +21,12 @@ public class TimeController {
 
     // 点击开始按钮，开始计时。
     @RequestMapping("/time/startTime")
-    public ResponseData<?> startTime(HttpServletRequest request) {
+    public ResponseData<?> startTime(HttpServletRequest request) throws Exception {
         return timeService.startTime(request);
+    }
+
+    @RequestMapping("/time/overTime")
+    public ResponseData<?> overTime(HttpServletRequest request) throws Exception {
+        return timeService.overTime(request);
     }
 }

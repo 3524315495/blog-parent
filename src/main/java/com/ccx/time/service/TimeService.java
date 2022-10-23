@@ -13,5 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 @Service
 public interface TimeService {
 
-    ResponseData<?> startTime(HttpServletRequest request);
+    ResponseData<?> startTime(HttpServletRequest request) throws Exception;
+
+    ResponseData<?> overTime(HttpServletRequest request) throws Exception;
 }

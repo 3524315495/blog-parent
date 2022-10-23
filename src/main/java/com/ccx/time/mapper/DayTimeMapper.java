@@ -5,6 +5,7 @@ import com.ccx.common.entity.DayTimeExample;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 
 @Mapper
@@ -47,6 +48,7 @@ public interface DayTimeMapper {
      *
      * @mbggenerated
      */
+    @Options(useGeneratedKeys = true)
     int insertSelective(DayTime record);
 
     /**
@@ -96,4 +98,11 @@ public interface DayTimeMapper {
      * @mbggenerated
      */
     int updateByPrimaryKey(DayTime record);
+
+    /**
+     * 插入返回主键值
+     * @param dayTime dayTime
+     * @return 主键值
+     */
+    int insertSelectivePrimary(DayTime dayTime);
 }

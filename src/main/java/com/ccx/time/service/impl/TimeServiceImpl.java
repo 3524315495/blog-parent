@@ -11,21 +11,14 @@ import com.ccx.time.mapper.TotalTimeMapper;
 import com.ccx.time.service.TimeService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
 
 import javax.servlet.http.HttpServletRequest;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 文件名：
@@ -48,7 +41,7 @@ public class TimeServiceImpl implements TimeService {
     @Transactional(rollbackFor = Exception.class)
     public ResponseData<?> startTime(HttpServletRequest request) throws Exception {
         ResponseData<DayTime> responseData = new ResponseData<>();
-        // 1、判断用户是否违规，不违规 新增 ，违规 返回
+        // 1、判断用户是否违规
         if (isViolations(request)) {
             responseData.setSuccess(false);
             responseData.setMessage("您已经处于一个任务中，请先结束！");
@@ -72,6 +65,7 @@ public class TimeServiceImpl implements TimeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ResponseData<?> overTime(HttpServletRequest request) throws Exception {
+        // todo 如果redis意外关闭，则需要考虑持久化 或者 搭建集群
         ResponseData<TotalTime> responseData = new ResponseData<>();
         Date overTime = new Date();
         // 1.更新day_time表中的over_time为当前时间
@@ -121,10 +115,16 @@ public class TimeServiceImpl implements TimeService {
     private boolean isViolations(HttpServletRequest request) {
         DayTimeExample example = new DayTimeExample();
         // 获取timeId
-        Long timeId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForHash()
-                .get(RedisConstant.USER_ID_TIME_ID, request.getParameter("userId"))).toString());
+//        Long timeId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForHash()
+//                .get(RedisConstant.USER_ID_TIME_ID, request.getParameter("userId"))).toString());
+        Object timeId = redisTemplate.opsForHash()
+                .get(RedisConstant.USER_ID_TIME_ID, request.getParameter("userId"));
+        if (timeId == null) {
+            return false;
+        }
+        Long tId = Long.valueOf(timeId.toString());
         example.createCriteria().andUserIdEqualTo(Integer.valueOf(request.getParameter("userId")))
-                .andTimeIdEqualTo(timeId);
+                .andTimeIdEqualTo(tId);
         List<DayTime> dayTimes = dayTimeMapper.selectByExample(example);
         return CollectionUtils.isNotEmpty(dayTimes);
     }

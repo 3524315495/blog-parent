@@ -3,7 +3,6 @@ package com.ccx.time.service.impl;
 import com.ccx.common.entity.DayTime;
 import com.ccx.common.entity.DayTimeExample;
 import com.ccx.common.entity.TotalTime;
-import com.ccx.common.entity.TotalTimeExample;
 import com.ccx.common.result.ResponseData;
 import com.ccx.common.result.constant.RedisConstant;
 import com.ccx.time.mapper.DayTimeMapper;
@@ -105,6 +104,14 @@ public class TimeServiceImpl implements TimeService {
         return responseData;
     }
 
+    @Override
+    public ResponseData<List<DayTime>> queryTimeOfDay(HttpServletRequest request, DayTime dayTime) {
+        String userId = request.getParameter("userId");
+        ResponseData<List<DayTime>> data = new ResponseData<>();
+        data.setRows(dayTimeMapper.queryTimeOfDay(userId, dayTime));
+        return data;
+    }
+
 
     /**
      * 用户是否是违规操作
@@ -115,8 +122,6 @@ public class TimeServiceImpl implements TimeService {
     private boolean isViolations(HttpServletRequest request) {
         DayTimeExample example = new DayTimeExample();
         // 获取timeId
-//        Long timeId = Long.valueOf(Objects.requireNonNull(redisTemplate.opsForHash()
-//                .get(RedisConstant.USER_ID_TIME_ID, request.getParameter("userId"))).toString());
         Object timeId = redisTemplate.opsForHash()
                 .get(RedisConstant.USER_ID_TIME_ID, request.getParameter("userId"));
         if (timeId == null) {

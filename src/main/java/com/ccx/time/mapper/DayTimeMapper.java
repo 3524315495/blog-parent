@@ -105,4 +105,13 @@ public interface DayTimeMapper {
      * @return 主键值
      */
     int insertSelectivePrimary(DayTime dayTime);
+
+    /**
+     * 查询用户每天时长.
+     *
+     * @param userId 用户id
+     * @param dayTime dayTime
+     * @return ResponseData
+     */
+    List<DayTime> queryTimeOfDay(@Param("userId") String userId, @Param("dayTime") DayTime dayTime);
 }
